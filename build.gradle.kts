@@ -30,8 +30,12 @@ allprojects {
             implementation(project(":aoc_2021:common"))
         }
 
-        implementation(kotlin("stdlib"))
-        implementation(kotlin("reflect"))
+        implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.0")
+        implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.0")
+
+        implementation("org.slf4j:slf4j-api:1.7.32")
+        implementation("ch.qos.logback:logback-core:1.2.7")
+        implementation("ch.qos.logback:logback-classic:1.2.7")
 
         testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
         testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.1")
