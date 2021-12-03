@@ -30,7 +30,7 @@ allprojects {
             implementation(project(":aoc_2021:common"))
         }
 
-        implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.0")
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0")
         implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.0")
 
         implementation("org.slf4j:slf4j-api:1.7.32")
