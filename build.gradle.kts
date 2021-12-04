@@ -37,8 +37,8 @@ allprojects {
         implementation("ch.qos.logback:logback-core:1.2.7")
         implementation("ch.qos.logback:logback-classic:1.2.7")
 
-        testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
-        testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.1")
+        testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+        testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
         testImplementation("org.hamcrest:hamcrest:2.2")
     }
 
