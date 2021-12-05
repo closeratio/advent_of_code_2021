@@ -14,6 +14,10 @@ data class Vec2i(
     fun length(): Double = (x.toDouble().pow(2) + y.toDouble().pow(2)).pow(0.5)
 
     operator fun plus(other: Vec2i): Vec2i = Vec2i(x + other.x, y + other.y)
+    operator fun minus(other: Vec2i): Vec2i = Vec2i(x - other.x, y - other.y)
     operator fun times(other: Vec2i): Vec2i = Vec2i(x * other.x, y * other.y)
+
+    fun isDiagonal(): Boolean = x != 0 && y != 0
+
 
 }

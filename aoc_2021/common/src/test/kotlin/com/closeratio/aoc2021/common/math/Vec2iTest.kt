@@ -29,10 +29,32 @@ class Vec2iTest {
         )
 
         @JvmStatic
+        fun minusArguments(): List<Arguments> = listOf(
+            Arguments.of(Vec2i.ZERO, Vec2i.ZERO, Vec2i.ZERO),
+            Arguments.of(Vec2i(1, 0), Vec2i.ZERO, Vec2i(1, 0)),
+            Arguments.of(Vec2i(0, -2), Vec2i.ZERO, Vec2i(0, -2)),
+            Arguments.of(Vec2i(1, 0), Vec2i(0, 2), Vec2i(1, -2)),
+            Arguments.of(Vec2i(-3, 0), Vec2i(9, 0), Vec2i(-12, 0))
+        )
+
+        @JvmStatic
         fun timesArguments(): List<Arguments> = listOf(
             Arguments.of(Vec2i(2, 3), Vec2i.ZERO, Vec2i.ZERO),
             Arguments.of(Vec2i(3, 4), Vec2i(5, 6), Vec2i(15, 24)),
             Arguments.of(Vec2i(6, 7), Vec2i(-8, 9), Vec2i(-48, 63))
+        )
+
+        @JvmStatic
+        fun isDiagonalArguments(): List<Arguments> = listOf(
+            Arguments.of(Vec2i.ZERO, false),
+            Arguments.of(Vec2i(3, 0), false),
+            Arguments.of(Vec2i(0, 7), false),
+            Arguments.of(Vec2i(-4, 0), false),
+            Arguments.of(Vec2i(0, -9), false),
+            Arguments.of(Vec2i(2, 9), true),
+            Arguments.of(Vec2i(-5, -6), true),
+            Arguments.of(Vec2i(2, -9), true),
+            Arguments.of(Vec2i(5, -6), true)
         )
     }
 
@@ -58,6 +80,18 @@ class Vec2iTest {
     }
 
     @ParameterizedTest
+    @MethodSource("minusArguments")
+    fun minus(
+        vec1: Vec2i,
+        vec2: Vec2i,
+        expected: Vec2i
+    ) {
+        val result = vec1 - vec2
+
+        assertThat(result, `is`(expected))
+    }
+
+    @ParameterizedTest
     @MethodSource("timesArguments")
     fun times(
         vec1: Vec2i,
@@ -65,6 +99,17 @@ class Vec2iTest {
         expected: Vec2i
     ) {
         val result = vec1 * vec2
+
+        assertThat(result, `is`(expected))
+    }
+
+    @ParameterizedTest
+    @MethodSource("isDiagonalArguments")
+    fun isDiagonal(
+        vec: Vec2i,
+        expected: Boolean
+    ) {
+        val result = vec.isDiagonal()
 
         assertThat(result, `is`(expected))
     }
