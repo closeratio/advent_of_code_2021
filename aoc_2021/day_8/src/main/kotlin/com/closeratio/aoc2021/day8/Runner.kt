@@ -5,12 +5,13 @@ object Runner {
     val observations = Observation.parse(javaClass.getResource("/input.txt")!!.readText())
 
     private fun part1() {
-        val result = observations.sumOf { it.countOutputEasyNumbers() }
+        val result = observations.sumOf(Observation::countOutputEasyNumbers)
         println(result)
     }
 
     private fun part2() {
-
+        val result = observations.sumOf(Observation::computeOutputValue)
+        println(result)
     }
 
     @JvmStatic
