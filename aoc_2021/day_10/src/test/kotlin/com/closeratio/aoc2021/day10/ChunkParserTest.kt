@@ -14,4 +14,10 @@ class ChunkParserTest {
         assertThat(result, `is`(26397))
     }
 
+    @Test
+    fun middleCompletionScore() {
+        val result = parser.middleCompletionScore()
+        assertThat(result, `is`(288957))
+    }
+
 }

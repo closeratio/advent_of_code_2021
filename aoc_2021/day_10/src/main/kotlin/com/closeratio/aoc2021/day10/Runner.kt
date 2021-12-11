@@ -10,7 +10,8 @@ object Runner {
     }
 
     private fun part2() {
-
+        val result = chunkParser.middleCompletionScore()
+        println(result)
     }
 
     @JvmStatic
