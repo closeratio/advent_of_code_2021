@@ -19,5 +19,5 @@
 # Working out 5 segment digits
 
 * 3: Both segments in 1
-* 5: Contains all segments in 9
+* 5: After working out 3, Contains all segments in 9
 * 2: Remaining one from this group

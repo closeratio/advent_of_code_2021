@@ -19,5 +19,17 @@ data class Vec2i(
 
     fun isDiagonal(): Boolean = x != 0 && y != 0
 
+    fun up(): Vec2i = Vec2i(x, y - 1)
+    fun down(): Vec2i = Vec2i(x, y + 1)
+    fun left(): Vec2i = Vec2i(x - 1, y)
+    fun right(): Vec2i = Vec2i(x + 1, y)
+
+    fun adjacent(): Set<Vec2i> = setOf(
+        up(),
+        down(),
+        left(),
+        right()
+    )
+
 
 }
