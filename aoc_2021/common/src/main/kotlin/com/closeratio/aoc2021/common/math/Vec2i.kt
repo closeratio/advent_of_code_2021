@@ -31,5 +31,11 @@ data class Vec2i(
         right()
     )
 
+    fun diagonallyAdjacent(): Set<Vec2i> = setOf(
+        up().left(),
+        up().right(),
+        down().left(),
+        down().right()
+    )
 
 }
