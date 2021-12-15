@@ -10,7 +10,8 @@ object Runner {
     }
 
     private fun part2() {
-
+        val result = instructions.quantityDifference(40)
+        println(result)
     }
 
     @JvmStatic

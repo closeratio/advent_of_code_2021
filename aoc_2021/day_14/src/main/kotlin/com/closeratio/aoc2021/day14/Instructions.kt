@@ -19,7 +19,8 @@ data class Instructions(
                         .map { it.split(" -> ") }
                         .map { (pair, insertion) ->
                             InsertionRule(
-                                pair[0] to pair[1], insertion
+                                pair[0] to pair[1],
+                                (pair[0] to insertion[0]) to (insertion[0] to pair[1])
                             )
                         }
                 )
@@ -27,18 +28,37 @@ data class Instructions(
 
     }
 
-    fun quantityDifference(stepCount: Int): Int = IntRange(1, stepCount)
-        .fold(template.template) { acc, _ -> applyRules(acc) }
-        .groupBy({ it }) { 1 }
-        .mapValues { (_, v) -> v.size }
+    fun quantityDifference(stepCount: Int): Long = IntRange(1, stepCount)
+        .fold(
+            template.template
+                .zipWithNext()
+                .groupBy { it }
+                .mapValues { (_, v) -> v.size.toLong() }
+        ) { acc, _ -> applyRules(acc) }
+        .map { (k, v) ->
+            k.first to v
+        }
+        .let {
+            it + (template.template.last() to 1L)
+        }
+        .groupBy({ it.first }) { it.second }
+        .mapValues { (_, v) -> v.sum() }
         .let { map ->
             map.maxOf { it.value } - map.minOf { it.value }
         }
 
-    private fun applyRules(input: String): String = input
-        .zipWithNext()
-        .joinToString("") { pair ->
-            pair.first + ruleMap.getValue(pair)
-        } + input.last()
+    private fun applyRules(input: Map<Pair<Char, Char>, Long>): Map<Pair<Char, Char>, Long> {
+        val result = input
+            .flatMap { (k, v) ->
+                listOf(
+                    ruleMap.getValue(k).first to v,
+                    ruleMap.getValue(k).second to v
+                )
+            }
+            .groupBy({ it.first }) { it.second }
+            .mapValues { (_, v) -> v.sum() }
+
+        return result
+    }
 
 }

@@ -21,4 +21,10 @@ class InstructionsTest {
         assertThat(result, `is`(1588))
     }
 
+    @Test
+    fun quantityDifference40Iterations() {
+        val result = instructions.quantityDifference(40)
+        assertThat(result, `is`(2188189693529))
+    }
+
 }
