@@ -1,6 +1,6 @@
 package com.closeratio.aoc2021.day16.packet
 
-import com.closeratio.aoc2021.day16.CharBuffer
+import com.closeratio.aoc2021.common.text.CharBuffer
 import com.closeratio.aoc2021.day16.toLong
 
 abstract class Packet(

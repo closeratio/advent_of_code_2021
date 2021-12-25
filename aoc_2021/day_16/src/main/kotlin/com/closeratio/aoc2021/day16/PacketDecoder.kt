@@ -1,5 +1,6 @@
 package com.closeratio.aoc2021.day16
 
+import com.closeratio.aoc2021.common.text.CharBuffer
 import com.closeratio.aoc2021.day16.packet.Packet
 
 class PacketDecoder {

@@ -1,5 +1,6 @@
 package com.closeratio.aoc2021.day16
 
+import com.closeratio.aoc2021.common.text.CharBuffer
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.Test

@@ -1,10 +1,12 @@
-package com.closeratio.aoc2021.day16
+package com.closeratio.aoc2021.common.text
 
 import java.util.*
 
 class CharBuffer(
     input: List<Char>
 ) {
+    constructor(input: String): this(input.toList())
+
     private val buffer: LinkedList<Char> = LinkedList(input)
 
     /**
