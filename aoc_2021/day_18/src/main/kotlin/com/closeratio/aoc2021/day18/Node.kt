@@ -1,22 +1,26 @@
 package com.closeratio.aoc2021.day18
 
-abstract class Node(
-    var nestLevel: Int
-) {
-    internal var parent: Node? = null
+import java.util.*
+
+abstract class Node {
+    internal val searchId: UUID = UUID.randomUUID()
+
+    abstract fun magnitude(): Long
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Node) return false
+        if (other.javaClass != javaClass) return false
 
-        if (nestLevel != other.nestLevel) return false
+        if (searchId != other.searchId) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return nestLevel
+        return searchId.hashCode()
     }
+
 
 }
 

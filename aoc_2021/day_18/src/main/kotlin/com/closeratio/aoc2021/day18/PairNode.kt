@@ -1,46 +1,81 @@
 package com.closeratio.aoc2021.day18
 
 import com.closeratio.aoc2021.common.text.CharBuffer
+import java.util.*
 
 class PairNode(
-    nestLevel: Int,
     var left: Node,
     var right: Node
-): Node(nestLevel) {
+) : Node() {
 
     companion object {
-        fun parse(input: String): PairNode = parse(0, CharBuffer(input.trim()))
+        fun parse(input: String): PairNode = parse(CharBuffer(input.trim()))
 
-        private fun parse(nestLevel: Int, buffer: CharBuffer): PairNode {
+        private fun parse(buffer: CharBuffer): PairNode {
 
             assert(buffer.remove(1).single() == '[')
-            val leftNode = parseNode(nestLevel, buffer)
+            val leftNode = parseNode(buffer)
             assert(buffer.remove(1).single() == ',')
-            val rightNode = parseNode(nestLevel, buffer)
+            val rightNode = parseNode(buffer)
             assert(buffer.remove(1).single() == ']')
 
-            val pair = PairNode(nestLevel, leftNode, rightNode)
-            leftNode.parent = pair
-            rightNode.parent = pair
+            val pair = PairNode(leftNode, rightNode)
 
             return pair
         }
 
-        private fun parseNode(nestLevel: Int, buffer: CharBuffer): Node = when (buffer.peek(1).single()) {
-            '[' -> parse(nestLevel + 1, buffer)
-            else -> LiteralNode(nestLevel + 1, buffer.remove(1).single().toString().toLong())
+        private fun parseNode(buffer: CharBuffer): Node = when (buffer.peek(1).single()) {
+            '[' -> parse(buffer)
+            else -> LiteralNode(buffer.remove(1).single().toString().toLong())
         }
     }
 
-    fun explodeCandidates(): List<PairNode> = if (nestLevel >= 4) {
+    override fun magnitude(): Long = (3 * left.magnitude()) + (2 * right.magnitude())
+
+    fun explodeCandidates(nestLevel: Int): List<PairNode> = if (nestLevel >= 4) {
         listOf(this)
     } else {
-        val leftCandidates = (left as? PairNode)?.explodeCandidates() ?: emptyList()
-        val rightCandidates = (right as? PairNode)?.explodeCandidates() ?: emptyList()
+        val leftCandidates = (left as? PairNode)?.explodeCandidates(nestLevel + 1) ?: emptyList()
+        val rightCandidates = (right as? PairNode)?.explodeCandidates(nestLevel + 1) ?: emptyList()
         leftCandidates + rightCandidates
     }
 
     fun splitCandidates(): List<LiteralNode> = specificSplitCandidates(left) + specificSplitCandidates(right)
+
+    fun buildParentMap(): Map<Node, PairNode> = mapOf(
+        left to this,
+        right to this
+    ) + ((left as? PairNode)?.buildParentMap() ?: emptyMap()) + ((right as? PairNode)?.buildParentMap() ?: emptyMap())
+
+    fun searchLeft(
+        parentMap: Map<Node, PairNode>,
+        searchSet: Set<UUID>
+    ): LiteralNode? = when {
+        left is LiteralNode -> left as LiteralNode
+        left.searchId !in searchSet -> (left as PairNode).nextRightLiteral()
+        parentMap[this] != null -> parentMap.getValue(this).searchLeft(parentMap, searchSet + this.searchId)
+        else -> null
+    }
+
+    private fun nextRightLiteral(): LiteralNode = when (right) {
+        is LiteralNode -> right as LiteralNode
+        else -> (right as PairNode).nextRightLiteral()
+    }
+
+    fun searchRight(
+        parentMap: Map<Node, PairNode>,
+        searchSet: Set<UUID>
+    ): LiteralNode? = when {
+        right is LiteralNode -> right as LiteralNode
+        right.searchId !in searchSet -> (right as PairNode).nextLeftLiteral()
+        parentMap[this] != null -> parentMap.getValue(this).searchRight(parentMap, searchSet + this.searchId)
+        else -> null
+    }
+
+    private fun nextLeftLiteral(): LiteralNode = when (left) {
+        is LiteralNode -> left as LiteralNode
+        else -> (left as PairNode).nextLeftLiteral()
+    }
 
     private fun specificSplitCandidates(
         node: Node
@@ -51,25 +86,7 @@ class PairNode(
             emptyList()
         }
     } else {
-        (left as PairNode).splitCandidates()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PairNode) return false
-        if (!super.equals(other)) return false
-
-        if (left != other.left) return false
-        if (right != other.right) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + left.hashCode()
-        result = 31 * result + right.hashCode()
-        return result
+        (node as PairNode).splitCandidates()
     }
 
     override fun toString(): String {

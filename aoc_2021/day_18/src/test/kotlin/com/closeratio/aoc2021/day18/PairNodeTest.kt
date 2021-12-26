@@ -13,32 +13,6 @@ class PairNodeTest {
         val result = PairNode.parse("[[[[[9,8],1],2],3],4]")
 
         assertThat(result.toString(), `is`("[[[[[9,8],1],2],3],4]"))
-        assertThat(
-            result,
-            `is`(
-                PairNode(
-                    0,
-                    PairNode(
-                        1,
-                        PairNode(
-                            2,
-                            PairNode(
-                                3,
-                                PairNode(
-                                    4,
-                                    LiteralNode(5, 9),
-                                    LiteralNode(5, 8)
-                                ),
-                                LiteralNode(4, 1)
-                            ),
-                            LiteralNode(3, 2)
-                        ),
-                        LiteralNode(2, 3)
-                    ),
-                    LiteralNode(1, 4)
-                )
-            )
-        )
     }
 
     @Test
@@ -49,39 +23,34 @@ class PairNodeTest {
 
     @Test
     fun explodeCandidates() {
-        val result = PairNode.parse("[[[[[9,8],1],2],3],4]").explodeCandidates()
+        val result = PairNode.parse("[[[[[9,8],1],2],3],4]").explodeCandidates(0)
 
         assertThat(result, hasSize(1))
-        assertThat(result, contains(PairNode(4, LiteralNode(5, 9), LiteralNode(5, 8))))
+        assertThat(result.single().toString(), `is`("[9,8]"))
     }
 
     @Test
     fun splitCandidates() {
         val result =  PairNode(
-            0,
             PairNode(
-                1,
                 PairNode(
-                    2,
                     PairNode(
-                        3,
                         PairNode(
-                            4,
-                            LiteralNode(5, 10),
-                            LiteralNode(5, 11)
+                            LiteralNode(10),
+                            LiteralNode(11)
                         ),
-                        LiteralNode(4, 1)
+                        LiteralNode(1)
                     ),
-                    LiteralNode(3, 2)
+                    LiteralNode(2)
                 ),
-                LiteralNode(2, 3)
+                LiteralNode(3)
             ),
-            LiteralNode(1, 4)
+            LiteralNode(4)
         ).splitCandidates()
 
 
         assertThat(result, hasSize(2))
-        assertThat(result, contains(LiteralNode(5, 10), LiteralNode(5, 11)))
+        assertThat(result.map(LiteralNode::value), contains(10L, 11L))
     }
 
 }
