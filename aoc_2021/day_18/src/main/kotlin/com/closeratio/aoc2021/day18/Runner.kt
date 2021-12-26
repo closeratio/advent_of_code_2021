@@ -9,7 +9,9 @@ object Runner {
     }
 
     private fun part2() {
-
+        val homework = Homework.parse(javaClass.getResource("/input.txt")!!.readText())
+        val result = homework.largestSumMagnitude()
+        println(result)
     }
 
     @JvmStatic

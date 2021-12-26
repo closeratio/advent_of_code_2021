@@ -87,8 +87,8 @@ class HomeworkTest {
         expected: String
     ) {
         val homework = Homework.parse(input)
-        homework.explode(homework.lines.first())
-        val result = homework.lines.first().toString()
+        homework.explode(homework.nodes.first())
+        val result = homework.nodes.first().toString()
         assertThat(result, `is`(expected))
     }
 
@@ -108,8 +108,8 @@ class HomeworkTest {
     @Test
     fun reduce() {
         val homework = Homework.parse("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]")
-        homework.reduce(homework.lines.first())
-        val result = homework.lines.first()
+        homework.reduce(homework.nodes.first())
+        val result = homework.nodes.first()
 
         assertThat(result.toString(), `is`("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"))
     }
@@ -150,9 +150,9 @@ class HomeworkTest {
     @Test
     fun reduceComplex() {
         val homework = Homework.parse("[[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]],[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]]")
-        homework.reduce(homework.lines.single())
+        homework.reduce(homework.nodes.single())
 
-        assertThat(homework.lines.single().toString(), `is`("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]"))
+        assertThat(homework.nodes.single().toString(), `is`("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]"))
     }
 
     @Test
@@ -166,6 +166,14 @@ class HomeworkTest {
         val result = homework.sumMagnitude()
 
         assertThat(result.toString(), `is`("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]"))
+    }
+
+    @Test
+    fun largestSumMagnitude() {
+        val homework = Homework.parse(javaClass.getResource("/test_input.txt")!!.readText())
+        val result = homework.largestSumMagnitude()
+
+        assertThat(result, `is`(3993))
     }
 
 }

@@ -1,23 +1,24 @@
 package com.closeratio.aoc2021.day18
 
 class Homework(
-    val lines: List<PairNode>
+    val lines: List<String>,
+    val nodes: List<PairNode>
 ) {
 
     companion object {
         fun parse(input: String) = input
             .trim()
             .split("\n")
-            .map(PairNode.Companion::parse)
-            .let(::Homework)
+            .map(String::trim)
+            .let { lines -> Homework(lines, lines.map(PairNode.Companion::parse)) }
     }
 
     fun sumMagnitude(): PairNode {
-        reduce(lines.first())
+        reduce(nodes.first())
 
-        val result = lines
+        val result = nodes
             .drop(1)
-            .fold(lines.first()) { acc, curr ->
+            .fold(nodes.first()) { acc, curr ->
 
                 PairNode(
                     acc,
@@ -27,6 +28,17 @@ class Homework(
 
         return result
     }
+
+    fun largestSumMagnitude(): Long = IntRange(0, lines.size - 1)
+        .flatMap { first -> IntRange(0, lines.size - 1).map { second -> first to second } }
+        .asSequence()
+        .filter { (first, second) -> first != second }
+        .map { (first, second) ->
+            listOf(lines[first], lines[second]).joinToString(",", "[", "]")
+        }
+        .map(Companion::parse)
+        .map(Homework::sumMagnitude)
+        .maxOf(PairNode::magnitude)
 
     fun reduce(root: PairNode) {
         var candidatesExist = true
