@@ -1,5 +1,6 @@
 package com.closeratio.aoc2021.common.math
 
+import kotlin.math.absoluteValue
 import kotlin.math.pow
 
 data class Vec3i(
@@ -61,5 +62,9 @@ data class Vec3i(
         rotateZ().rotateZ().rotateZ().rotateX().rotateX(),
         rotateZ().rotateZ().rotateZ().rotateX().rotateX().rotateX()
     )
+
+    fun invert(): Vec3i = Vec3i(-x, -y, -z)
+
+    fun manhattanDistance(): Int = x.absoluteValue + y.absoluteValue + z.absoluteValue
 
 }

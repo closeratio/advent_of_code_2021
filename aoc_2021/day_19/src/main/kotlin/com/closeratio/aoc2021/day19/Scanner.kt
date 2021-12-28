@@ -4,8 +4,11 @@ import com.closeratio.aoc2021.common.math.Vec3i
 
 class Scanner(
     val name: String,
-    val beacons: Set<Beacon>
+    val beacons: Set<Beacon>,
+    val permutation: Int
 ) {
+
+    var position: Vec3i? = null
 
     // Represents a list of vectors linking each beacon with every other beacon detected
     // by the scanner
@@ -23,7 +26,7 @@ class Scanner(
                 .map { index ->
                     beaconPermutations.map { it[index] }.toSet()
                 }
-                .mapIndexed { index, beacons -> Scanner(name + " (Permutation ${index + 1})", beacons) }
+                .mapIndexed { index, beacons -> Scanner(name, beacons, index) }
         }
 
     override fun equals(other: Any?): Boolean {
@@ -31,12 +34,15 @@ class Scanner(
         if (other !is Scanner) return false
 
         if (name != other.name) return false
+        if (permutation != other.permutation) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return name.hashCode()
+        var result = name.hashCode()
+        result = 31 * result + permutation
+        return result
     }
 
     override fun toString(): String {

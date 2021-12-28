@@ -10,4 +10,6 @@ data class Beacon(
         assert(permutations.size == 24)
         return permutations
     }
+
+    fun offset(amount: Vec3i): Beacon = Beacon(position + amount)
 }
