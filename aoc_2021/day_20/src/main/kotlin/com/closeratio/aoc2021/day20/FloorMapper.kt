@@ -26,13 +26,20 @@ class FloorMapper(
 
     fun applyAlgorithm(count: Int): Results {
         val endImage = IntRange(1, count)
-            .fold(initialImage) { acc, index ->
-                acc.litPixels
-                    .flatMap(::getPixelList)
-                    .toSet()
+            .fold(initialImage) { acc, _ ->
+                val minX = acc.litPixels.minOf(Vec2i::x)
+                val maxX = acc.litPixels.maxOf(Vec2i::x)
+                val minY = acc.litPixels.minOf(Vec2i::y)
+                val maxY = acc.litPixels.maxOf(Vec2i::y)
+
+                IntRange(minX - 1, maxX + 1)
+                    .flatMap { x -> IntRange(minY - 1, maxY + 1).map { y -> Vec2i(x, y) } }
                     .mapNotNull { pixel ->
-                        val boolList = getPixelList(pixel).map { it in acc.litPixels }
-                        if (imageEnhancementAlgorithm.runAlgorithm(boolList)) {
+                        val lit = getPixelList(pixel)
+                            .map { it in acc.litPixels }
+                            .let(imageEnhancementAlgorithm::runAlgorithm)
+
+                        if (lit) {
                             pixel
                         } else {
                             null
