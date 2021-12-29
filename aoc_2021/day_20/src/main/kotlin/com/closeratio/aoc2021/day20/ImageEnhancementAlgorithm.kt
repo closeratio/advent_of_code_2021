@@ -1,7 +1,7 @@
 package com.closeratio.aoc2021.day20
 
 class ImageEnhancementAlgorithm(
-    algorithmData: String
+    private val algorithmData: String
 ) {
 
     private val litIndexes = algorithmData
@@ -9,6 +9,9 @@ class ImageEnhancementAlgorithm(
         .filter { (_, c) -> c == '#' }
         .map { (index, _) -> index }
         .toSet()
+
+    fun firstIndexLit(): Boolean = 0 in litIndexes
+    fun lastIndexLit(): Boolean = (algorithmData.length) in litIndexes
 
     fun runAlgorithm(
         input: List<Boolean>

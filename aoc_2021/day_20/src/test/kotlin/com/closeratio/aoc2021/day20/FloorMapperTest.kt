@@ -10,7 +10,7 @@ class FloorMapperTest {
 
     @Test
     fun parse() {
-        assertThat(mapper.initialImage.litPixels, hasSize(10))
+        assertThat(mapper.initialImage.litPixels(), hasSize(10))
     }
 
     @Test

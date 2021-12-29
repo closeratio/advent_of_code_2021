@@ -25,33 +25,38 @@ class FloorMapper(
     }
 
     fun applyAlgorithm(count: Int): Results {
-        val endImage = IntRange(1, count)
-            .fold(initialImage) { acc, _ ->
-                val minX = acc.litPixels.minOf(Vec2i::x)
-                val maxX = acc.litPixels.maxOf(Vec2i::x)
-                val minY = acc.litPixels.minOf(Vec2i::y)
-                val maxY = acc.litPixels.maxOf(Vec2i::y)
+        val (endImage, _) = IntRange(1, count)
+            .fold(initialImage to false) { (image, default), iteration ->
+                val minX = image.pixels.keys.minOf(Vec2i::x)
+                val maxX = image.pixels.keys.maxOf(Vec2i::x)
+                val minY = image.pixels.keys.minOf(Vec2i::y)
+                val maxY = image.pixels.keys.maxOf(Vec2i::y)
 
-                IntRange(minX - 1, maxX + 1)
+                val nextImage = IntRange(minX - 1, maxX + 1)
                     .flatMap { x -> IntRange(minY - 1, maxY + 1).map { y -> Vec2i(x, y) } }
-                    .mapNotNull { pixel ->
-                        val lit = getPixelList(pixel)
-                            .map { it in acc.litPixels }
+                    .associateWith { pixel ->
+                        getPixelList(pixel)
+                            .map {
+                                image.pixels.getOrElse(it) {
+                                    when ((iteration % 2) == 0) {
+                                        true -> imageEnhancementAlgorithm.firstIndexLit()
+                                        false -> imageEnhancementAlgorithm.lastIndexLit()
+                                    }
+                                }
+                            }
                             .let(imageEnhancementAlgorithm::runAlgorithm)
-
-                        if (lit) {
-                            pixel
-                        } else {
-                            null
-                        }
                     }
-                    .toSet()
                     .let(::Image)
+
+                val nextDefault = when {
+                    default -> imageEnhancementAlgorithm.firstIndexLit()
+                    else -> imageEnhancementAlgorithm.lastIndexLit()
+                }
+
+                nextImage to nextDefault
             }
 
-        println(endImage.print())
-
-        return Results(endImage.litPixels)
+        return Results(endImage.litPixels())
     }
 
     private fun getPixelList(pixel: Vec2i): Set<Vec2i> = setOf(

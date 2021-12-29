@@ -12,7 +12,7 @@ class ImageTest {
             .trim()
             .split("\n\n")[1])
 
-        assertThat(image.litPixels, hasSize(10))
+        assertThat(image.litPixels(), hasSize(10))
     }
 
 }

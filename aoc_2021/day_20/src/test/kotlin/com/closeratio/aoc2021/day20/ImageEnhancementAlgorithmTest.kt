@@ -39,5 +39,4 @@ class ImageEnhancementAlgorithmTest {
         val result = imageEnhancementAlgorithm.runAlgorithm(input)
         assertThat(result, `is`(expected))
     }
-
 }
