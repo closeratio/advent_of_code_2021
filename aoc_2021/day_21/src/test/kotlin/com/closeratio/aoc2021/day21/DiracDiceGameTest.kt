@@ -1,26 +1,21 @@
 package com.closeratio.aoc2021.day21
 
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is`
+import com.closeratio.aoc2021.day21.simple.SimpleDiracDiceGame
+import org.hamcrest.MatcherAssert
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 
 class DiracDiceGameTest {
 
-    private val game = DiracDiceGame.parse(javaClass.getResource("/test_input.txt")!!.readText())
-
     @Test
     fun parse() {
-        assertThat(game.player1StartingPosition, `is`(4))
-        assertThat(game.player2StartingPosition, `is`(8))
-    }
+        val game = DiracDiceGame.parse(
+            javaClass.getResource("/test_input.txt")!!.readText(),
+            ::SimpleDiracDiceGame
+        )
 
-    @Test
-    fun playGame() {
-        val result = game.playGame(DeterministicDice())
-
-        assertThat(result.losingPlayerScore, `is`(745))
-        assertThat(result.diceRollCount, `is`(993))
-        assertThat(result.losingPlayerScore * result.diceRollCount, `is`(739785))
+        MatcherAssert.assertThat(game.player1StartingPosition, Matchers.`is`(4))
+        MatcherAssert.assertThat(game.player2StartingPosition, Matchers.`is`(8))
     }
 
 

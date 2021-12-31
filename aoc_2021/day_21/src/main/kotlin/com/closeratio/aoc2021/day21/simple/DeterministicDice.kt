@@ -1,9 +1,13 @@
-package com.closeratio.aoc2021.day21
+package com.closeratio.aoc2021.day21.simple
 
-class DeterministicDice: Dice() {
+class DeterministicDice {
+
+    var rollCount: Int = 0
+        private set
+
     private var currentRollValue: Int = 1
 
-    override fun roll(): Int {
+    fun roll(): Int {
         val rollValue = currentRollValue
         currentRollValue++
         rollCount++
@@ -13,3 +17,4 @@ class DeterministicDice: Dice() {
         return rollValue
     }
 }
+
