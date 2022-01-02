@@ -1,6 +1,5 @@
 package com.closeratio.aoc2021.day22
 
-import com.closeratio.aoc2021.common.math.Vec3i
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.nullValue
@@ -12,16 +11,18 @@ class CuboidTest {
     fun pointCount() {
         assertThat(
             Cuboid(
-                Vec3i(10, 10, 10),
-                Vec3i(12, 12, 12)
+                10..12,
+                10..12,
+                10..12
             ).pointCount,
             `is`(27)
         )
 
         assertThat(
             Cuboid(
-                Vec3i(5, 5, 5),
-                Vec3i(5, 5, 5)
+                5..5,
+                5..5,
+                5..5
             ).pointCount,
             `is`(1)
         )
@@ -30,13 +31,15 @@ class CuboidTest {
     @Test
     fun overlapCubeHasOverlap() {
         val cuboid1 = Cuboid(
-            Vec3i(10, 10, 10),
-            Vec3i(12, 12, 12)
+            10..12,
+            10..12,
+            10..12
         )
 
         val cuboid2 = Cuboid(
-            Vec3i(11, 11, 11),
-            Vec3i(13, 13, 13)
+            11..13,
+            11..13,
+            11..13
         )
 
         val result = cuboid1.overlapCuboid(cuboid2)!!
@@ -44,8 +47,9 @@ class CuboidTest {
         assertThat(
             cuboid1.overlapCuboid(cuboid2), `is`(
                 Cuboid(
-                    Vec3i(11, 11, 11),
-                    Vec3i(12, 12, 12)
+                    11..12,
+                    11..12,
+                    11..12
                 )
             )
         )
@@ -56,13 +60,15 @@ class CuboidTest {
     @Test
     fun overlapCubeNoOverlap() {
         val cuboid1 = Cuboid(
-            Vec3i(10, 10, 10),
-            Vec3i(12, 12, 12)
+            10..12,
+            10..12,
+            10..12
         )
 
         val cuboid2 = Cuboid(
-            Vec3i(5, 5, 5),
-            Vec3i(7, 12, 11)
+            5..7,
+            5..12,
+            5..11
         )
 
         val result = cuboid1.overlapCuboid(cuboid2)
