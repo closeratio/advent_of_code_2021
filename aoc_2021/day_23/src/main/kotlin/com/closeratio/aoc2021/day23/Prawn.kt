@@ -1,6 +1,7 @@
 package com.closeratio.aoc2021.day23
 
 import com.closeratio.aoc2021.common.math.Vec2i
+import java.util.*
 
 abstract class Prawn(
     val position: Vec2i,
@@ -45,12 +46,65 @@ abstract class Prawn(
         }
 
         // Compute all the available paths from this location
-        val availablePaths = computeAvailablePaths()
+        val reachablePositions = computeReachablePositions(burrow)
+            .filter { it.finish !in Burrow.invalidPositions }
 
-        TODO()
+        return if (isInHallway()) {
+            val primaryPath = reachablePositions.find { it.finish == primaryDestination }
+
+            val friendPrawnInPrimaryDestination = burrow
+                .prawns
+                .filter { it != this }
+                .find { it.javaClass == javaClass && it.position == primaryDestination } != null
+            val secondaryPath = if (friendPrawnInPrimaryDestination) {
+                reachablePositions.find { it.finish == secondaryDestination }
+            } else {
+                null
+            }
+
+            listOfNotNull(primaryPath, secondaryPath)
+        } else {
+            reachablePositions.filter { it.finish.y == 0 }
+        }
     }
 
-    private fun computeAvailablePaths(): List<Path> = emptyList()
+    private fun computeReachablePositions(burrow: Burrow): List<Path> {
+        val occupiedPositions = burrow.prawns.map(Prawn::position).toSet()
+
+        val prevMap = mutableMapOf<Vec2i, Vec2i>()
+        val exploredPositions = mutableSetOf<Vec2i>()
+        val candidates = LinkedList(listOf(position))
+
+        while (candidates.isNotEmpty()) {
+            val candidate = candidates.poll()
+            exploredPositions.add(candidate)
+
+            val adjacentCandidates = candidate
+                .adjacent()
+                .filter { it in Burrow.navGrid }
+                .filter { it !in occupiedPositions }
+                .filter { it !in exploredPositions }
+                .filter { it !in candidates }
+
+            adjacentCandidates.forEach { prevMap[it] = candidate }
+
+            candidates.addAll(adjacentCandidates)
+        }
+
+        return exploredPositions
+            .filter { it != position }
+            .map { destination ->
+                val path = mutableListOf(destination)
+
+                while (path.last() != position) {
+                    path.add(prevMap.getValue(path.last()))
+                }
+
+                Path(path.reversed())
+            }
+    }
+
+    private fun isInHallway(): Boolean = position.y == 0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

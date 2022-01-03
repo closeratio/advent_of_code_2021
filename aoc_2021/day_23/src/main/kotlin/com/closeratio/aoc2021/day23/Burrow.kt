@@ -21,6 +21,13 @@ class Burrow(
             .map { x -> Vec2i(x, 0) }
             .toSet()
 
+        val invalidPositions = setOf(
+            Vec2i(2, 0),
+            Vec2i(4, 0),
+            Vec2i(6, 0),
+            Vec2i(8, 0)
+        )
+
         fun parse(input: String): Burrow = TODO()
     }
 
