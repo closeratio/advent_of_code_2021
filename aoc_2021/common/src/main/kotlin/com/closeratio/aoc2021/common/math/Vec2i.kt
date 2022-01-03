@@ -1,5 +1,6 @@
 package com.closeratio.aoc2021.common.math
 
+import kotlin.math.absoluteValue
 import kotlin.math.pow
 
 data class Vec2i(
@@ -37,5 +38,7 @@ data class Vec2i(
         down().left(),
         down().right()
     )
+
+    fun manhattanDistance(): Int = x.absoluteValue + y.absoluteValue
 
 }
