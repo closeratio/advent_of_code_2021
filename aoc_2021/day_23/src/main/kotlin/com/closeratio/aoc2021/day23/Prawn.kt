@@ -14,21 +14,12 @@ abstract class Prawn(
     abstract val primaryDestination: Vec2i
     abstract val secondaryDestination: Vec2i
 
-    fun pathCost(path: Path): Long = path.path.size * moveUnitCost()
+    private fun pathCost(path: Path): Long = (path.path.size - 1) * moveUnitCost()
 
-    fun moveAlong(path: Path): Prawn {
-        // Check that the list contains adjacent positions
-        (listOf(position) + path.path).zipWithNext().forEach { (first, second) ->
-            if (first.minus(second).manhattanDistance() != 1) {
-                throw IllegalArgumentException("Bad path: $path")
-            }
-        }
-
-        return subclassConstructor(
-            path.path.last(),
-            pathCost(path)
-        )
-    }
+    fun moveAlong(path: Path): Prawn = subclassConstructor(
+        path.path.last(),
+        spentEnergy + pathCost(path)
+    )
 
     fun generatePossiblePaths(
         burrow: Burrow
@@ -49,27 +40,27 @@ abstract class Prawn(
         val reachablePositions = computeReachablePositions(burrow)
             .filter { it.finish !in Burrow.invalidPositions }
 
-        return if (isInHallway()) {
-            val primaryPath = reachablePositions.find { it.finish == primaryDestination }
-
-            val friendPrawnInPrimaryDestination = burrow
-                .prawns
-                .filter { it != this }
-                .find { it.javaClass == javaClass && it.position == primaryDestination } != null
-            val secondaryPath = if (friendPrawnInPrimaryDestination) {
-                reachablePositions.find { it.finish == secondaryDestination }
-            } else {
-                null
-            }
-
-            listOfNotNull(primaryPath, secondaryPath)
-        } else {
-            reachablePositions.filter { it.finish.y == 0 }
+        // If we can reach our primary or secondary destination, then only consider those 2 paths
+        val primaryPath = reachablePositions.find { it.finish == primaryDestination }
+        if (primaryPath != null) {
+            return listOf(primaryPath)
         }
+
+        val friendPrawnInPrimaryDestination = friendPrawn.position == primaryDestination
+        val secondaryPath = reachablePositions.find { it.finish == secondaryDestination }
+        if (friendPrawnInPrimaryDestination && secondaryPath != null) {
+            return listOf(secondaryPath)
+        }
+
+        if (!isInHallway()) {
+            return reachablePositions.filter { it.finish.y == 0 }
+        }
+
+        return emptyList()
     }
 
     private fun computeReachablePositions(burrow: Burrow): List<Path> {
-        val occupiedPositions = burrow.prawns.map(Prawn::position).toSet()
+        val occupiedPositions = burrow.prawnPositions
 
         val prevMap = mutableMapOf<Vec2i, Vec2i>()
         val exploredPositions = mutableSetOf<Vec2i>()
@@ -80,11 +71,11 @@ abstract class Prawn(
             exploredPositions.add(candidate)
 
             val adjacentCandidates = candidate
-                .adjacent()
+                .adjacentAsList()
                 .filter { it in Burrow.navGrid }
                 .filter { it !in occupiedPositions }
                 .filter { it !in exploredPositions }
-                .filter { it !in candidates }
+                .filter { it !in prevMap }
 
             adjacentCandidates.forEach { prevMap[it] = candidate }
 
@@ -100,7 +91,7 @@ abstract class Prawn(
                     path.add(prevMap.getValue(path.last()))
                 }
 
-                Path(path.reversed())
+                Path.from(path.reversed())
             }
     }
 

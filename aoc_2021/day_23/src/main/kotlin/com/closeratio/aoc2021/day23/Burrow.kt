@@ -4,6 +4,7 @@ import com.closeratio.aoc2021.common.math.Vec2i
 import java.util.*
 
 class Burrow(
+    private val parentState: Burrow?,
     val prawns: List<Prawn>
 ) {
 
@@ -28,29 +29,58 @@ class Burrow(
             Vec2i(8, 0)
         )
 
-        fun parse(input: String): Burrow = TODO()
+        fun parse(input: String): Burrow = input
+            .trim()
+            .split("\n")
+            .drop(1)
+            .dropLast(1)
+            .map { it.drop(1).dropLast(1) }
+            .flatMapIndexed { y, line ->
+                line.mapIndexedNotNull { x, char ->
+                    when (char) {
+                        'A' -> AmberPrawn(Vec2i(x, y), 0)
+                        'B' -> BronzePrawn(Vec2i(x, y), 0)
+                        'C' -> CopperPrawn(Vec2i(x, y), 0)
+                        'D' -> DesertPrawn(Vec2i(x, y), 0)
+                        else -> null
+                    }
+                }
+            }
+            .let { Burrow(null, it) }
     }
 
     private val spentEnergy: Long = prawns.sumOf { it.spentEnergy }
+    val prawnPositions = prawns.map { it.position }.toSet()
 
     fun computeOrganizeEnergy(): Long {
         val exploredStates = mutableSetOf<Burrow>()
         val candidateStates = PriorityQueue(Comparator.comparingLong(Burrow::spentEnergy)).also {
             it.add(this)
         }
+        val candidateStateSet = mutableSetOf(this)
 
         while (candidateStates.isNotEmpty()) {
             val state = candidateStates.poll()
+            candidateStateSet.remove(state)
+
             if (state.isOrganised()) {
+                val stateList = mutableListOf(state)
+                while (stateList.last().parentState != null) {
+                    stateList.add(stateList.last().parentState!!)
+                }
+
                 return state.spentEnergy
             }
 
             exploredStates.add(state)
 
-            candidateStates.addAll(computeChildStates()
+            state.computeChildStates()
                 .filter { it !in exploredStates }
-                .filter { it !in candidateStates }
-            )
+                .filter { it !in candidateStateSet }
+                .let {
+                    candidateStates.addAll(it)
+                    candidateStateSet.addAll(it)
+                }
         }
 
         throw IllegalStateException("Unable to compute solution, explored ${exploredStates.size} states")
@@ -60,7 +90,7 @@ class Burrow(
         .flatMap { prawn ->
             prawn.generatePossiblePaths(this).map { path ->
                 Burrow(
-                    prawns.filter { it != prawn } + prawn.moveAlong(path)
+                    this, prawns.filter { it != prawn } + prawn.moveAlong(path)
                 )
             }
         }
@@ -71,6 +101,31 @@ class Burrow(
 
     private fun isOrganised(): Boolean = prawns
         .all { it.position == it.primaryDestination || it.position == it.secondaryDestination }
+
+    private fun display(): String {
+        return IntRange(navGrid.minOf(Vec2i::y) - 1, navGrid.maxOf(Vec2i::y) + 1)
+            .joinToString("\n") { y ->
+                IntRange(navGrid.minOf(Vec2i::x) - 1, navGrid.maxOf(Vec2i::x) + 1)
+                    .joinToString("") { x ->
+                        val position = Vec2i(x, y)
+                        if (position in prawnPositions) {
+                            when (val prawn = prawns.find { it.position == position }!!) {
+                                is AmberPrawn -> "A"
+                                is BronzePrawn -> "B"
+                                is CopperPrawn -> "C"
+                                is DesertPrawn -> "D"
+                                else -> throw IllegalStateException("Unhandled prawn: $prawn")
+                            }
+                        } else if (position in navGrid) {
+                            "."
+                        } else if (y <= 1 || (y > 1 && x in 1..9)) {
+                            "#"
+                        } else {
+                            " "
+                        }
+                    }
+            }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -83,6 +138,10 @@ class Burrow(
 
     override fun hashCode(): Int {
         return prawns.hashCode()
+    }
+
+    override fun toString(): String {
+        return "Burrow(prawns=$prawns, spentEnergy=$spentEnergy)"
     }
 
 }

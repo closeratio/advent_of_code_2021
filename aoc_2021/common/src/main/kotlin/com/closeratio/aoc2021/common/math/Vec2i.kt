@@ -25,12 +25,15 @@ data class Vec2i(
     fun left(): Vec2i = Vec2i(x - 1, y)
     fun right(): Vec2i = Vec2i(x + 1, y)
 
-    fun adjacent(): Set<Vec2i> = setOf(
+    // For performance reasons
+    fun adjacentAsList(): List<Vec2i> = listOf(
         up(),
         down(),
         left(),
         right()
     )
+
+    fun adjacent(): Set<Vec2i> = adjacentAsList().toSet()
 
     fun diagonallyAdjacent(): Set<Vec2i> = setOf(
         up().left(),
