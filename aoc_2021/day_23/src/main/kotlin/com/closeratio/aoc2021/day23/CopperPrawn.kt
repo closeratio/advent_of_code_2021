@@ -6,7 +6,6 @@ class CopperPrawn(position: Vec2i, spentEnergy: Long): Prawn(position, spentEner
 
     override fun moveUnitCost(): Long = 100
 
-    override val primaryDestination: Vec2i = Vec2i(6, 2)
-    override val secondaryDestination: Vec2i = Vec2i(6, 1)
+    override val destinationColumnX: Int = 6
 
 }

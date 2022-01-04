@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test
 
 class BurrowTest {
 
-    private val burrow = Burrow.parse(javaClass.getResource("/test_input.txt")!!.readText())
-
     @Test
     fun parse() {
+        val burrow = Burrow.parse(javaClass.getResource("/test_input_simple.txt")!!.readText())
+
         val amberPrawnPositions = burrow.prawns.filterIsInstance<AmberPrawn>().map(AmberPrawn::position)
         assertThat(amberPrawnPositions, hasSize(2))
         assertThat(amberPrawnPositions, containsInAnyOrder(Vec2i(2, 2), Vec2i(8, 2)))
@@ -31,9 +31,19 @@ class BurrowTest {
     }
 
     @Test
-    fun computeOrganizeEnergy() {
+    fun computeOrganizeEnergySimple() {
+        val burrow = Burrow.parse(javaClass.getResource("/test_input_simple.txt")!!.readText())
+
         val result = burrow.computeOrganizeEnergy()
         assertThat(result, `is`(12521))
+    }
+
+    @Test
+    fun computeOrganizeEnergyComplex() {
+        val burrow = Burrow.parse(javaClass.getResource("/test_input_complex.txt")!!.readText())
+
+        val result = burrow.computeOrganizeEnergy()
+        assertThat(result, `is`(44169))
     }
 
 }

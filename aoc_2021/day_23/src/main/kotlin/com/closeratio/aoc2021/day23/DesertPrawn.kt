@@ -6,7 +6,6 @@ class DesertPrawn(position: Vec2i, spentEnergy: Long): Prawn(position, spentEner
 
     override fun moveUnitCost(): Long = 1000
 
-    override val primaryDestination: Vec2i = Vec2i(8, 2)
-    override val secondaryDestination: Vec2i = Vec2i(8, 1)
+    override val destinationColumnX: Int = 8
 
 }

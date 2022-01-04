@@ -11,8 +11,7 @@ abstract class Prawn(
 
     abstract fun moveUnitCost(): Long
 
-    abstract val primaryDestination: Vec2i
-    abstract val secondaryDestination: Vec2i
+    abstract val destinationColumnX: Int
 
     private fun pathCost(path: Path): Long = (path.path.size - 1) * moveUnitCost()
 
@@ -25,31 +24,31 @@ abstract class Prawn(
         burrow: Burrow
     ): List<Path> {
         // Check if we're already in the primary destination. If we are, then we don't need to move
-        if (position == primaryDestination) {
-            return emptyList()
-        }
+        if (!isInHallway() && position.x == destinationColumnX) {
+            val inFinalPosition = allPrawnsBelowOrganised(position, burrow)
 
-        // Check if we're already in the secondary position and another prawn of the same type is in the primary
-        // position. If it is, then we don't need to move
-        val friendPrawn = burrow.prawns.find { it.javaClass == javaClass && it.position != position }!!
-        if (position == secondaryDestination && friendPrawn.position == primaryDestination) {
-            return emptyList()
+            if (inFinalPosition) {
+                return emptyList()
+            }
         }
 
         // Compute all the available paths from this location
         val reachablePositions = computeReachablePositions(burrow)
-            .filter { it.finish !in Burrow.invalidPositions }
 
         // If we can reach our primary or secondary destination, then only consider those 2 paths
-        val primaryPath = reachablePositions.find { it.finish == primaryDestination }
+        val primaryPath: Path? = reachablePositions
+            .filter { it.finish.x == destinationColumnX }
+            .maxByOrNull { it.finish.y }
+            ?.let { path ->
+                if (allPrawnsBelowOrganised(path.finish, burrow)) {
+                    path
+                } else {
+                    null
+                }
+            }
+
         if (primaryPath != null) {
             return listOf(primaryPath)
-        }
-
-        val friendPrawnInPrimaryDestination = friendPrawn.position == primaryDestination
-        val secondaryPath = reachablePositions.find { it.finish == secondaryDestination }
-        if (friendPrawnInPrimaryDestination && secondaryPath != null) {
-            return listOf(secondaryPath)
         }
 
         if (!isInHallway()) {
@@ -72,7 +71,7 @@ abstract class Prawn(
 
             val adjacentCandidates = candidate
                 .adjacentAsList()
-                .filter { it in Burrow.navGrid }
+                .filter { it in burrow.navGrid }
                 .filter { it !in occupiedPositions }
                 .filter { it !in exploredPositions }
                 .filter { it !in prevMap }
@@ -82,8 +81,13 @@ abstract class Prawn(
             candidates.addAll(adjacentCandidates)
         }
 
+        if (exploredPositions.size == 1) {
+            return emptyList()
+        }
+
         return exploredPositions
             .filter { it != position }
+            .filter { it !in Burrow.invalidPositions }
             .map { destination ->
                 val path = mutableListOf(destination)
 
@@ -96,6 +100,20 @@ abstract class Prawn(
     }
 
     private fun isInHallway(): Boolean = position.y == 0
+
+    private fun allPrawnsBelowOrganised(
+        position: Vec2i,
+        burrow: Burrow
+    ): Boolean {
+        if (position.y == burrow.prawnTypeCount) {
+            return true
+        }
+
+        return IntRange(position.y + 1, burrow.prawnTypeCount)
+            .map { y -> Vec2i(position.x, y) }
+            .map { burrow.prawnPositions[it] }
+            .all { it?.isOrganised() ?: false }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -114,6 +132,8 @@ abstract class Prawn(
     override fun toString(): String {
         return "${javaClass.simpleName}(position=$position, spentEnergy=$spentEnergy)"
     }
+
+    fun isOrganised(): Boolean = position.x == destinationColumnX
 
 }
 

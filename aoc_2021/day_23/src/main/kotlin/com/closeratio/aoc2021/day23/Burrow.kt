@@ -5,23 +5,11 @@ import java.util.*
 
 class Burrow(
     private val parentState: Burrow?,
-    val prawns: List<Prawn>
+    val prawns: List<Prawn>,
+    val navGrid: Set<Vec2i>
 ) {
 
     companion object {
-        val navGrid = setOf(
-            Vec2i(2, 1),
-            Vec2i(2, 2),
-            Vec2i(4, 1),
-            Vec2i(4, 2),
-            Vec2i(6, 1),
-            Vec2i(6, 2),
-            Vec2i(8, 1),
-            Vec2i(8, 2)
-        ) + IntRange(0, 10)
-            .map { x -> Vec2i(x, 0) }
-            .toSet()
-
         val invalidPositions = setOf(
             Vec2i(2, 0),
             Vec2i(4, 0),
@@ -46,11 +34,18 @@ class Burrow(
                     }
                 }
             }
-            .let { Burrow(null, it) }
+            .let { prawns ->
+                val navGrid = IntRange(0, 10)
+                    .map { x -> Vec2i(x, 0) }
+                    .toSet() + prawns.map { it.position }
+
+                Burrow(null, prawns, navGrid)
+            }
     }
 
     private val spentEnergy: Long = prawns.sumOf { it.spentEnergy }
-    val prawnPositions = prawns.map { it.position }.toSet()
+    val prawnPositions = prawns.associateBy { it.position }
+    val prawnTypeCount = navGrid.maxOf(Vec2i::y)
 
     fun computeOrganizeEnergy(): Long {
         val exploredStates = mutableSetOf<Burrow>()
@@ -90,19 +85,20 @@ class Burrow(
         .flatMap { prawn ->
             prawn.generatePossiblePaths(this).map { path ->
                 Burrow(
-                    this, prawns.filter { it != prawn } + prawn.moveAlong(path)
+                    this,
+                    prawns.filter { it != prawn } + prawn.moveAlong(path),
+                    navGrid
                 )
             }
         }
         .groupBy { it }
         .mapValues { (_, v) -> v.minByOrNull { burrow -> burrow.spentEnergy }!! }
         .values
-        .sortedBy { it.spentEnergy }
+        .toList()
 
-    private fun isOrganised(): Boolean = prawns
-        .all { it.position == it.primaryDestination || it.position == it.secondaryDestination }
+    private fun isOrganised(): Boolean = prawns.all(Prawn::isOrganised)
 
-    private fun display(): String {
+    fun display(): String {
         return IntRange(navGrid.minOf(Vec2i::y) - 1, navGrid.maxOf(Vec2i::y) + 1)
             .joinToString("\n") { y ->
                 IntRange(navGrid.minOf(Vec2i::x) - 1, navGrid.maxOf(Vec2i::x) + 1)

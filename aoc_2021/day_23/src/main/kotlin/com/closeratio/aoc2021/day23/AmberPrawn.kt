@@ -6,8 +6,7 @@ class AmberPrawn(position: Vec2i, spentEnergy: Long): Prawn(position, spentEnerg
 
     override fun moveUnitCost(): Long = 1
 
-    override val primaryDestination: Vec2i = Vec2i(2, 2)
-    override val secondaryDestination: Vec2i = Vec2i(2, 1)
+    override val destinationColumnX: Int = 2
 
 }
 
