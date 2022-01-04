@@ -6,7 +6,8 @@ import java.util.*
 class Burrow(
     private val parentState: Burrow?,
     val prawns: List<Prawn>,
-    val navGrid: Set<Vec2i>
+    val navGrid: Set<Vec2i>,
+    val adjacentPositionMap: Map<Vec2i, List<Vec2i>>
 ) {
 
     companion object {
@@ -39,13 +40,24 @@ class Burrow(
                     .map { x -> Vec2i(x, 0) }
                     .toSet() + prawns.map { it.position }
 
-                Burrow(null, prawns, navGrid)
+                val adjacentPositionMap = navGrid
+                    .associateWith { position -> position.adjacentAsList().filter { it in navGrid } }
+
+                Burrow(null, prawns, navGrid, adjacentPositionMap)
             }
     }
 
-    private val spentEnergy: Long = prawns.sumOf { it.spentEnergy }
-    val prawnPositions = prawns.associateBy { it.position }
-    val prawnTypeCount = navGrid.maxOf(Vec2i::y)
+    private val spentEnergy by lazy {
+        prawns.sumOf { it.spentEnergy }
+    }
+
+    val prawnPositions by lazy {
+        prawns.associateBy { it.position }
+    }
+
+    val sideRoomSize by lazy {
+        navGrid.maxOf(Vec2i::y)
+    }
 
     fun computeOrganizeEnergy(): Long {
         val exploredStates = mutableSetOf<Burrow>()
@@ -87,7 +99,8 @@ class Burrow(
                 Burrow(
                     this,
                     prawns.filter { it != prawn } + prawn.moveAlong(path),
-                    navGrid
+                    navGrid,
+                    adjacentPositionMap
                 )
             }
         }
@@ -114,7 +127,7 @@ class Burrow(
                             }
                         } else if (position in navGrid) {
                             "."
-                        } else if (y <= 1 || (y > 1 && x in 1..9)) {
+                        } else if (y <= 1 || x in 1..9) {
                             "#"
                         } else {
                             " "

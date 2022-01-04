@@ -61,17 +61,18 @@ abstract class Prawn(
     private fun computeReachablePositions(burrow: Burrow): List<Path> {
         val occupiedPositions = burrow.prawnPositions
 
-        val prevMap = mutableMapOf<Vec2i, Vec2i>()
-        val exploredPositions = mutableSetOf<Vec2i>()
-        val candidates = LinkedList(listOf(position))
+        val prevMap = HashMap<Vec2i, Vec2i>(64)
+        val exploredPositions = HashSet<Vec2i>(64)
+        val candidates = LinkedList<Vec2i>()
+        candidates.add(position)
 
         while (candidates.isNotEmpty()) {
             val candidate = candidates.poll()
             exploredPositions.add(candidate)
 
-            val adjacentCandidates = candidate
-                .adjacentAsList()
-                .filter { it in burrow.navGrid }
+            val adjacentCandidates = burrow
+                .adjacentPositionMap
+                .getValue(candidate)
                 .filter { it !in occupiedPositions }
                 .filter { it !in exploredPositions }
                 .filter { it !in prevMap }
@@ -81,21 +82,18 @@ abstract class Prawn(
             candidates.addAll(adjacentCandidates)
         }
 
-        if (exploredPositions.size == 1) {
-            return emptyList()
-        }
-
         return exploredPositions
             .filter { it != position }
             .filter { it !in Burrow.invalidPositions }
             .map { destination ->
-                val path = mutableListOf(destination)
+                val path = LinkedList<Vec2i>()
+                path.add(destination)
 
                 while (path.last() != position) {
                     path.add(prevMap.getValue(path.last()))
                 }
 
-                Path.from(path.reversed())
+                Path(path.reversed())
             }
     }
 
@@ -105,11 +103,11 @@ abstract class Prawn(
         position: Vec2i,
         burrow: Burrow
     ): Boolean {
-        if (position.y == burrow.prawnTypeCount) {
+        if (position.y == burrow.sideRoomSize) {
             return true
         }
 
-        return IntRange(position.y + 1, burrow.prawnTypeCount)
+        return IntRange(position.y + 1, burrow.sideRoomSize)
             .map { y -> Vec2i(position.x, y) }
             .map { burrow.prawnPositions[it] }
             .all { it?.isOrganised() ?: false }
