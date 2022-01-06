@@ -22,6 +22,11 @@ class CharBuffer(
             acc + buffer.remove()
         }
 
+    /**
+     * Consumes from the buffer
+     */
+    fun remove(): Char = buffer.remove()
+
     fun isEmpty(): Boolean = buffer.isEmpty()
     fun isNotEmpty(): Boolean = buffer.isNotEmpty()
 
