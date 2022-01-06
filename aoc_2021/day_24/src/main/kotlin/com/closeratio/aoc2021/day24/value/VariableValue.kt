@@ -1,4 +1,6 @@
-package com.closeratio.aoc2021.day24
+package com.closeratio.aoc2021.day24.value
+
+import com.closeratio.aoc2021.day24.VariableState
 
 data class VariableValue(
     val variableName: Char

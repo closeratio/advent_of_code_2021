@@ -1,9 +1,9 @@
 package com.closeratio.aoc2021.day24.instruction
 
 import com.closeratio.aoc2021.common.text.CharBuffer
-import com.closeratio.aoc2021.day24.Value
 import com.closeratio.aoc2021.day24.VariableState
-import com.closeratio.aoc2021.day24.VariableValue
+import com.closeratio.aoc2021.day24.value.Value
+import com.closeratio.aoc2021.day24.value.VariableValue
 
 class EqualsInstruction(
     private val firstValue: VariableValue,

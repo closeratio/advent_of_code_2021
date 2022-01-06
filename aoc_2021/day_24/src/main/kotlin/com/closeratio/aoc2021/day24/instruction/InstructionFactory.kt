@@ -1,7 +1,7 @@
 package com.closeratio.aoc2021.day24.instruction
 
-import com.closeratio.aoc2021.day24.LiteralValue
-import com.closeratio.aoc2021.day24.VariableValue
+import com.closeratio.aoc2021.day24.value.LiteralValue
+import com.closeratio.aoc2021.day24.value.VariableValue
 
 object InstructionFactory {
 
